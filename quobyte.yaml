@@ -1,0 +1,83 @@
+- hosts: cluster
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Add an Apt signing key, uses whichever key is at the URL
+      apt_key:
+        url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
+        state: present
+    - name: Add specified repository into sources list
+      apt_repository:
+        repo: deb https://packages.quobyte.com/repo/v3/apt buster main
+        state: present
+    - name: Install Quobyte thirdparty libraries 
+      apt: 
+        name=quobyte-thirdparty-libraries=2:3.0~pre8.1 
+        state=present
+    - name: Install Quobyte Software package
+      apt: 
+        name=quobyte-server=2:3.0~pre8.1 
+        state=present
+    - name: Install default Java runtime
+      apt: 
+        name=default-jre-headless
+        state=present
+    - name: 
+      apt: 
+        name=xfsprogs
+        state=present
+    - name: Write /etc/quobyte/host.cfg
+      template:
+        src: templates/host.cfg.jinja2
+        dest: "/etc/quobyte/host.cfg"
+
+
+# first node will be bootstrap node
+- hosts: cluster[0]
+  become: yes
+  tasks:
+    - name: Create a xfs filesystem on /dev/sdb
+      filesystem:
+        fstype: xfs 
+        dev: /dev/sdb
+    - name: Label registry device with "quobyte-dev" 
+      command:
+        cmd: xfs_admin -L quobyte-dev /dev/sdb 
+        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
+    - name: Create registry mount path
+      file:
+        path: /var/lib/quobyte/registry-data
+        state: directory
+        mode: '0755'
+    - name: Mount registry device
+      mount:
+        path: /var/lib/quobyte/registry-data
+        src: /dev/sdb
+        fstype: xfs 
+        state: mounted
+    - name: Run qmkdev to create registry device 
+      command:
+        ##cmd: /usr/bin/qmkdev -t REGISTRY /var/lib/quobyte/registry-data 
+        cmd: /usr/bin/qbootstrap -y /var/lib/quobyte/registry-data 
+        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
+
+    - name: Enable service quobyte-registry, if not started
+      service:
+        name: quobyte-registry
+        enabled: yes
+    - name: Start service quobyte-registry, if not started
+      service:
+        name: quobyte-registry
+        state: started
+
+    - name: Start service quobyte-api, if not started
+      service:
+        name: quobyte-api
+        state: started
+
+    - name: Start service quobyte-webconsole, if not started
+      service:
+        name: quobyte-webconsole
+        state: started
+
