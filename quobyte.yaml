@@ -58,28 +58,8 @@
         state: mounted
     - name: Run qmkdev to create registry device 
       command:
-        ##cmd: /usr/bin/qmkdev -t REGISTRY /var/lib/quobyte/registry-data 
         cmd: /usr/bin/qbootstrap -y /var/lib/quobyte/registry-data 
         creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
-
-    - name: Enable service quobyte-registry, if not started
-      service:
-        name: quobyte-registry
-        enabled: yes
-    - name: Start service quobyte-registry, if not started
-      service:
-        name: quobyte-registry
-        state: started
-
-    - name: Start service quobyte-api, if not started
-      service:
-        name: quobyte-api
-        state: started
-
-    - name: Start service quobyte-webconsole, if not started
-      service:
-        name: quobyte-webconsole
-        state: started
 
 - hosts: cluster[1:3]
   become: yes
@@ -108,23 +88,18 @@
         cmd: /usr/bin/qmkdev -t REGISTRY /var/lib/quobyte/registry-data 
         creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
 
-    - name: Enable service quobyte-registry, if not started
+- hosts: cluster
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
       service:
-        name: quobyte-registry
         enabled: yes
-    - name: Start service quobyte-registry, if not started
-      service:
-        name: quobyte-registry
         state: started
-
-    - name: Start service quobyte-api, if not started
-      service:
-        name: quobyte-api
-        state: started
-
-    - name: Start service quobyte-webconsole, if not started
-      service:
-        name: quobyte-webconsole
-        state: started
-
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+         - quobyte-api
+         - quobyte-webconsole
+         - quobyte-data
+         - quobyte-metadata
 
