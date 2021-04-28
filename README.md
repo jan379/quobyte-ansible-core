@@ -1,4 +1,4 @@
-# Ansible based Quoybte installer 
+# Ansible based Quobyte installer 
 
 This approach mimics a manual Quobyte install without taking any shortcut using the official Quobyte installer shell script.
 
