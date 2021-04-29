@@ -1,5 +1,5 @@
 # Registry entries.
-registry: 10.138.15.221,10.138.0.45,10.138.0.43,10.138.0.61
+registry: 10.138.15.231,10.138.15.228,10.138.15.230,10.138.0.46
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network

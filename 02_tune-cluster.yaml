@@ -1,0 +1,35 @@
+- hosts: cluster
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Install tuned 
+      apt: 
+        name=tuned
+        state=present
+
+    - name: Set Quobyte tuned server profile
+      shell:
+        cmd: tuned-adm profile quobyte-server-performance
+
+    - name: Restart tuned
+      service:
+        name: tuned
+        state: restarted
+        enabled: yes
+
+- hosts: cluster
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte core services 
+      service:
+        state: restarted
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+         - quobyte-api
+         - quobyte-webconsole
+         - quobyte-data
+         - quobyte-metadata
+

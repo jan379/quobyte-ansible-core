@@ -13,11 +13,13 @@
         state: present
     - name: Install Quobyte thirdparty libraries 
       apt: 
-        name=quobyte-thirdparty-libraries=2:3.0~pre8.1 
+      #name=quobyte-thirdparty-libraries=2:3.0~pre8.1 
+        name=quobyte-thirdparty-libraries 
         state=present
     - name: Install Quobyte Software package
       apt: 
-        name=quobyte-server=2:3.0~pre8.1 
+      #name=quobyte-server=2:3.0~pre8.1 
+        name=quobyte-server 
         state=present
     - name: Install default Java runtime
       apt: 
