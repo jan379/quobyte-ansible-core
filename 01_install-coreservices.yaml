@@ -98,10 +98,17 @@
 - hosts: cluster[1:3]
   become: yes
   tasks:
+    - name: Create quobyte device directory
+      file:
+        path: /var/lib/quobyte/devices
+        state: directory
+        owner: quobyte
+        mode: '0755'
     - name: Create registry data directory
       file:
         path: /var/lib/quobyte/devices/registry-data
         state: directory
+        owner: quobyte
         mode: '0755'
     - name: Register pseudo device to hold registry data
       command:
