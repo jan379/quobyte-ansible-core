@@ -1,7 +1,73 @@
-- hosts: cluster
+- hosts: metadata
   vars_files:
     - vars/ansible-vars
   become: yes
   tasks:
-  - name: provision metadata devices
-  - name: provision data devices
+    - name: Create a xfs filesystem on /dev/sdb
+      filesystem:
+        fstype: xfs 
+        dev: /dev/sdb
+    - name: Label metadata device with "quobyte-dev" 
+      command:
+        cmd: xfs_admin -L quobyte-dev /dev/sdb 
+        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+    - name: Create metadata mount path
+      file:
+        path: /var/lib/quobyte/devices/metadata
+        state: directory
+        owner: quobyte
+        mode: '0755'
+    - name: Mount metadata device
+      mount:
+        path: /var/lib/quobyte/devices/metadata
+        src: /dev/sdb
+        fstype: xfs 
+        state: mounted
+    - name: Run qmkdev to create metadata device 
+      command:
+        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata 
+        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+
+
+- hosts: dataserver
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Create a list of unformatted devices
+      command:
+        cmd: qmgmt device list-unformatted | grep $HOSTNAME | awk '{print $3}' 
+      register: unformatted_devices 
+
+    - name: Create a xfs filesystem on data devices
+      filesystem:
+        fstype: xfs 
+        dev: "{{ item }}"
+      with_items: 
+        - "{{ unformatted_devices }}"
+    - name: Label data device with "quobyte-dev" 
+      command:
+        cmd: xfs_admin -L quobyte-dev /dev/{{ item }}
+        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
+      with_items: 
+        - "{{ unformatted_devices }}"
+
+    - name: Wait for automounted data devices
+      wait_for:
+        path: /proc/mounts
+        search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
+      with_items:
+        - "{{ unformatted_devices }}"
+
+    - name: Create Quobyte Data devices
+      command: 
+        cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
+        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
+      with_items:
+        - "{{ unformatted_devices }}"
+
+# liste erstellen
+#qmgmt device list-unformatted | grep $HOSTNAME
+# filesystem erstellen
+# warten auf automount?
+# qmkdev -t data
