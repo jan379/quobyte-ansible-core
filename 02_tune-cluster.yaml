@@ -3,10 +3,18 @@
     - vars/ansible-vars
   become: yes
   tasks:
-    - name: Install tuned 
+    - name: Install tuned Debian package 
       apt: 
-        name=tuned
-        state=present
+        name: tuned
+        state: present
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: Install tuned RPM package 
+      yum: 
+        name: tuned
+        state: present
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
 
     - name: Set Quobyte tuned server profile
       shell:

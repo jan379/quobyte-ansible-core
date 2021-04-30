@@ -3,37 +3,55 @@
     - vars/ansible-vars
   become: yes
   tasks:
-    - name: Add an Apt signing key, uses whichever key is at the URL
+    - name: Add Quobyte repository signing key
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
         state: present
-    - name: Add specified repository into sources list
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: Add Quobyte apt repository to sources list
       apt_repository:
         repo: deb https://packages.quobyte.com/repo/v3/apt buster main
         state: present
-    - name: Install Quobyte thirdparty libraries 
-      apt: 
-      #name=quobyte-thirdparty-libraries=2:3.0~pre8.1 
-        name=quobyte-thirdparty-libraries 
-        state=present
-    - name: Install Quobyte Software package
-      apt: 
-      #name=quobyte-server=2:3.0~pre8.1 
-        name=quobyte-server 
-        state=present
-    - name: Install default Java runtime
-      apt: 
-        name=default-jre-headless
-        state=present
-    - name: 
-      apt: 
-        name=xfsprogs
-        state=present
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: Add Quobyte rpm repository to sources list
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: https://packages.quobyte.com/repo/v3/rpm/$releasever/$basearch
+        gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - default-jre-headless
+        - quobyte-thirdparty-libraries=2:3.0~pre8.1 
+        - quobyte-server=2:3.0~pre8.1 
+        - xfsprogs
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+ 
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        state: present
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java-11-openjdk 
+        - quobyte-thirdparty-libraries=2:3.0~pre8.1 
+        - quobyte-server=2:3.0~pre8.1 
+        - xfsprogs
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
     - name: Write /etc/quobyte/host.cfg
       template:
         src: templates/host.cfg.jinja2
         dest: "/etc/quobyte/host.cfg"
-
 
 # first node will be bootstrap node
 - hosts: cluster[0]
