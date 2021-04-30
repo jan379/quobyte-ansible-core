@@ -66,36 +66,10 @@
         mode: '0755'
     - name: Register pseudo device to hold registry data
       command:
-        #cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
-        #creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
-        cmd: /usr/bin/qbootstrap -y /var/lib/quobyte/registry-data 
-        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
+        cmd: /usr/bin/qbootstrap -d /var/lib/quobyte/devices/registry-data 
+        creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-#    - name: Create a xfs filesystem on /dev/sdb
-#      filesystem:
-#        fstype: xfs 
-#        dev: /dev/sdb
-#    - name: Label registry device with "quobyte-dev" 
-#      command:
-#        cmd: xfs_admin -L quobyte-dev /dev/sdb 
-#        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
-#    - name: Create registry mount path
-#      file:
-#        path: /var/lib/quobyte/registry-data
-#        state: directory
-#        mode: '0755'
-#    - name: Mount registry device
-#      mount:
-#        path: /var/lib/quobyte/registry-data
-#        src: /dev/sdb
-#        fstype: xfs 
-#        state: mounted
-#    - name: Run qmkdev to create registry device 
-#      command:
-#        cmd: /usr/bin/qbootstrap -y /var/lib/quobyte/registry-data 
-#        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
-#
-- hosts: cluster[1:3]
+ hosts: cluster[1:3]
   become: yes
   tasks:
     - name: Create quobyte device directory
@@ -114,33 +88,7 @@
       command:
         cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
-        #cmd: /usr/bin/qbootstrap -y /var/lib/quobyte/registry-data 
-        #creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
 
-#    - name: Create a xfs filesystem on /dev/sdb
-#      filesystem:
-#        fstype: xfs 
-#        dev: /dev/sdb
-#    - name: Label registry device with "quobyte-dev" 
-#      command:
-#        cmd: xfs_admin -L quobyte-dev /dev/sdb 
-#        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
-#    - name: Create registry mount path
-#      file:
-#        path: /var/lib/quobyte/registry-data
-#        state: directory
-#        mode: '0755'
-#    - name: Mount registry device
-#      mount:
-#        path: /var/lib/quobyte/registry-data
-#        src: /dev/sdb
-#        fstype: xfs 
-#        state: mounted
-#    - name: Run qmkdev to create registry device 
-#      command:
-#        cmd: /usr/bin/qmkdev -t REGISTRY /var/lib/quobyte/registry-data 
-#        creates: /var/lib/quobyte/registry-data/QUOBYTE_DEV_SETUP
-#
 - hosts: cluster
   become: yes
   tasks:
