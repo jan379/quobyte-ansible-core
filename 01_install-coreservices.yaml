@@ -18,7 +18,7 @@
       yum_repository:
         name: quobyte
         description: Quobyte rpm repo
-        baseurl: https://packages.quobyte.com/repo/v3/rpm/$releasever/$basearch
+        baseurl: https://packages.quobyte.com/repo/v3/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
         gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
@@ -30,21 +30,22 @@
       vars:
         packages:
         - default-jre-headless
-        - quobyte-thirdparty-libraries=2:3.0~pre8.1 
-        - quobyte-server=2:3.0~pre8.1 
+        - quobyte-thirdparty-libraries=2:3.0~pre8.1
+        - quobyte-server=2:3.0~pre8.1
         - xfsprogs
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
  
     - name: Install RPM packages
       yum: 
         update_cache: yes
+        allow_downgrade: yes
         state: present
         name: "{{ packages }}"
       vars:
         packages:
         - java-11-openjdk 
-        - quobyte-thirdparty-libraries=2:3.0~pre8.1 
-        - quobyte-server=2:3.0~pre8.1 
+        - quobyte-thirdparty-libraries-3.0~pre8.1
+        - quobyte-server-3.0~pre8.1
         - xfsprogs
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
