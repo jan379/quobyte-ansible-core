@@ -1,0 +1,7 @@
+- hosts: cluster
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+  - name: provision metadata devices
+  - name: provision data devices
