@@ -35,9 +35,17 @@
   become: yes
   tasks:
     - name: Create a list of unformatted devices
-      command:
+      shell:
         cmd: qmgmt device list-unformatted | grep $HOSTNAME | awk '{print $3}' 
-      register: unformatted_devices 
+      register: empty_devices 
+
+    - set_fact: 
+       unformatted_devices: "{{ empty_devices.stdout_lines }}"
+
+    - debug: 
+       var: unformatted_devices
+    - set_fact:
+       device_name_short: "{{ unformatted_devices | replace( '/dev/','' ) }}"
 
     - name: Create a xfs filesystem on data devices
       filesystem:
@@ -47,8 +55,8 @@
         - "{{ unformatted_devices }}"
     - name: Label data device with "quobyte-dev" 
       command:
-        cmd: xfs_admin -L quobyte-dev /dev/{{ item }}
-        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
+        cmd: xfs_admin -L quobyte-dev {{ item }}
+        #creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items: 
         - "{{ unformatted_devices }}"
 
@@ -57,14 +65,14 @@
         path: /proc/mounts
         search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
       with_items:
-        - "{{ unformatted_devices }}"
+        - "{{ device_name_short }}"
 
     - name: Create Quobyte Data devices
       command: 
         cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
         creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items:
-        - "{{ unformatted_devices }}"
+        - "{{ device_name_short }}"
 
 # liste erstellen
 #qmgmt device list-unformatted | grep $HOSTNAME
