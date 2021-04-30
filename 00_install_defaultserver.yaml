@@ -1,4 +1,4 @@
-- hosts: dataserver 
+- hosts: all 
   vars_files:
     - vars/ansible-vars
   become: yes
@@ -53,60 +53,5 @@
       template:
         src: templates/host.cfg.jinja2
         dest: "/etc/quobyte/host.cfg"
-
-- hosts: dataserver 
-  become: yes
-  tasks:
-    - name: Enable Quobyte data service
-      service:
-        enabled: yes
-        state: started
-        name: "{{ item }}"
-      with_items: 
-         - quobyte-data
-
-- hosts: dataserver
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
-    - name: Create a list of unformatted devices
-      shell:
-        cmd: qmgmt device list-unformatted | grep $HOSTNAME | awk '{print $3}' 
-      register: empty_devices 
-
-    - set_fact: 
-       unformatted_devices: "{{ empty_devices.stdout_lines }}"
-
-    - debug: 
-       var: unformatted_devices
-    - set_fact:
-       device_name_short: "{{ unformatted_devices | replace( '/dev/','' ) }}"
-
-    - name: Create a xfs filesystem on data devices
-      filesystem:
-        fstype: xfs 
-        dev: "{{ item }}"
-      with_items: 
-        - "{{ unformatted_devices }}"
-    - name: Label data device with "quobyte-dev" 
-      command:
-        cmd: xfs_admin -L quobyte-dev {{ item }}
-      with_items: 
-        - "{{ unformatted_devices }}"
-
-    - name: Wait for automounted data devices
-      wait_for:
-        path: /proc/mounts
-        search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
-      with_items:
-        - "{{ device_name_short }}"
-
-    - name: Create Quobyte Data devices
-      command: 
-        cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
-        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
-      with_items:
-        - "{{ device_name_short }}"
 
 

@@ -1,61 +1,5 @@
-- hosts: cluster
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
-    - name: Add Quobyte repository signing key
-      apt_key:
-        url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
-        state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-    - name: Add Quobyte apt repository to sources list
-      apt_repository:
-        repo: deb https://packages.quobyte.com/repo/v3/apt buster main
-        state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-    - name: Add Quobyte rpm repository to sources list
-      yum_repository:
-        name: quobyte
-        description: Quobyte rpm repo
-        baseurl: https://packages.quobyte.com/repo/v3/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
-        gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-
-    - name: Install Debian packages
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - default-jre-headless
-        - quobyte-thirdparty-libraries=2:3.0~pre8.1
-        - quobyte-server=2:3.0~pre8.1
-        - xfsprogs
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
- 
-    - name: Install RPM packages
-      yum: 
-        update_cache: yes
-        allow_downgrade: yes
-        state: present
-        name: "{{ packages }}"
-      vars:
-        packages:
-        - java-11-openjdk 
-        - quobyte-thirdparty-libraries-3.0~pre8.1
-        - quobyte-server-3.0~pre8.1
-        - xfsprogs
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-
-    - name: Write /etc/quobyte/host.cfg
-      template:
-        src: templates/host.cfg.jinja2
-        dest: "/etc/quobyte/host.cfg"
-
 # first node will be bootstrap node
-- hosts: cluster[0]
+- hosts: registry-services[0]
   become: yes
   tasks:
 
@@ -69,7 +13,7 @@
         cmd: /usr/bin/qbootstrap -y -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-- hosts: cluster[1:3]
+- hosts: registry-services[1:]
   become: yes
   tasks:
     - name: Create quobyte device directory
@@ -89,7 +33,7 @@
         cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-- hosts: cluster
+- hosts: registry-services
   become: yes
   tasks:
     - name: Enable Quobyte core services 
@@ -99,8 +43,25 @@
         name: "{{ item }}"
       with_items: 
          - quobyte-registry
-         - quobyte-api
-         - quobyte-webconsole
-         - quobyte-data
-         - quobyte-metadata
 
+- hosts: api-services
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-api
+
+- hosts: webconsole-services
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-webconsole

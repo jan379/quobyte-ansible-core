@@ -1,0 +1,41 @@
+- hosts: metadata-services 
+  become: yes
+  tasks:
+    - name: Enable Quobyte data service
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-metadata
+
+- hosts: metadata-services
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Create a xfs filesystem on {{ metadatadevice }}
+      filesystem:
+        fstype: xfs 
+        dev: "{{ metadatadevice }}"
+    - name: Label metadata device with "quobyte-dev" 
+      command:
+        cmd: xfs_admin -L quobyte-dev {{ metadatadevice }} 
+        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+    - name: Create metadata mount path
+      file:
+        path: /var/lib/quobyte/devices/metadata
+        state: directory
+        owner: quobyte
+        mode: '0755'
+    - name: Mount metadata device
+      mount:
+        path: /var/lib/quobyte/devices/metadata
+        src: "{{ metadatadevice }}"
+        fstype: xfs 
+        state: mounted
+    - name: Run qmkdev to create metadata device 
+      command:
+        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata 
+        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+

@@ -1,43 +1,30 @@
-- hosts: metadata
+- hosts: data-services
+  become: yes
+  tasks:
+    - name: Enable Quobyte data service
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-data
+
+- hosts: data-services
   vars_files:
     - vars/ansible-vars
   become: yes
   tasks:
-    - name: Create a xfs filesystem on /dev/sdb
-      filesystem:
-        fstype: xfs 
-        dev: /dev/sdb
-    - name: Label metadata device with "quobyte-dev" 
-      command:
-        cmd: xfs_admin -L quobyte-dev /dev/sdb 
-        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
-    - name: Create metadata mount path
-      file:
-        path: /var/lib/quobyte/devices/metadata
-        state: directory
-        owner: quobyte
-        mode: '0755'
-    - name: Mount metadata device
-      mount:
-        path: /var/lib/quobyte/devices/metadata
-        src: /dev/sdb
-        fstype: xfs 
-        state: mounted
-    - name: Run qmkdev to create metadata device 
-      command:
-        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata 
-        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+    - name: get quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login storageadmin test.1234 
 
-
-- hosts: dataserver
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
     - name: Create a list of unformatted devices
       shell:
-        cmd: qmgmt device list-unformatted | grep $HOSTNAME | awk '{print $3}' 
+        cmd: qmgmt -u {{ api_service }} device list-unformatted | grep {{ ansible_nodename }} | awk '{print $3}' 
       register: empty_devices 
+
+    - debug: 
+       var: empty_devices
 
     - set_fact: 
        unformatted_devices: "{{ empty_devices.stdout_lines }}"
@@ -56,7 +43,6 @@
     - name: Label data device with "quobyte-dev" 
       command:
         cmd: xfs_admin -L quobyte-dev {{ item }}
-        #creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items: 
         - "{{ unformatted_devices }}"
 
@@ -74,8 +60,13 @@
       with_items:
         - "{{ device_name_short }}"
 
-# liste erstellen
-#qmgmt device list-unformatted | grep $HOSTNAME
-# filesystem erstellen
-# warten auf automount?
-# qmkdev -t data
+- hosts: data-services
+  become: yes
+  tasks:
+    - name: Restart Quobyte data services 
+      service:
+        state: restarted
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-data
+
