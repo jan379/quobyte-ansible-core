@@ -26,18 +26,67 @@
         state: restarted
         enabled: yes
 
-- hosts: quobyte-server
+- hosts: registry-services 
   become: yes
   serial: 1
   tasks:
-    - name: Restart Quobyte core services 
+    - name: Restart Quobyte registry services 
       service:
         state: restarted
-        name: "{{ item }}"
-      with_items: 
-         - quobyte-registry
-         - quobyte-api
-         - quobyte-webconsole
-         - quobyte-data
-         - quobyte-metadata
-
+        name: quobyte-registry 
+- hosts: api-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte api services 
+      service:
+        state: restarted
+        name: quobyte-api 
+- hosts: webconsole-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: restarted
+        name: quobyte-webconsole 
+- hosts: webconsole-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
+- hosts: metadata-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte metadata services 
+      service:
+        state: restarted
+        name: quobyte-metadata 
+- hosts: data-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte data services 
+      service:
+        state: restarted
+        name: quobyte-data 
+- hosts: s3-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte s3 services 
+      service:
+        state: restarted
+        name: quobyte-s3 
+- hosts: nfs-services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte nfs services 
+      service:
+        state: restarted
+        name: quobyte-nfs 
