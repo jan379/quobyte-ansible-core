@@ -1,0 +1,35 @@
+# qmgmt device list DATA
+# qmgmt device update add-tags 1 silver
+
+- hosts: data-services
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: get quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login storageadmin test.1234 
+
+    - name: Create a list of SSD devices
+      shell:
+        cmd: qmgmt -u {{ api_service }} device list DATA | grep ssd | awk '{print $1}' 
+      register: ssd_devices 
+
+
+    - name: Create a list of HDD devices
+      shell:
+        cmd: qmgmt -u {{ api_service }} device list DATA | grep hdd | awk '{print $1}' 
+      register: hdd_devices 
+
+    - set_fact: 
+       cleaned_ssd_devices: "{{ ssd_devices.stdout_lines }}"
+
+    - set_fact: 
+       cleaned_hdd_devices: "{{ hdd_devices.stdout_lines }}"
+
+    - name: Tag SSD devices
+      shell:
+        cmd: qmgmt -u {{ api_service }} device update add-tags {{ item }} platinum 
+      with_items: "{{ cleaned_ssd_devices }} 
+
+
