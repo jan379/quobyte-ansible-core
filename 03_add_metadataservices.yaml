@@ -17,10 +17,10 @@
     - name: Create a xfs filesystem on {{ metadatadevice }}
       filesystem:
         fstype: xfs 
-        dev: "{{ metadatadevice }}"
+        dev: "/dev/{{ metadatadevice }}"
     - name: Label metadata device with "quobyte-dev" 
       command:
-        cmd: xfs_admin -L quobyte-dev {{ metadatadevice }} 
+        cmd: xfs_admin -L quobyte-dev /dev/{{ metadatadevice }} 
         creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
     - name: Create metadata mount path
       file:
@@ -31,7 +31,7 @@
     - name: Mount metadata device
       mount:
         path: /var/lib/quobyte/devices/metadata
-        src: "{{ metadatadevice }}"
+        src: "/dev/{{ metadatadevice }}"
         fstype: xfs 
         state: mounted
     - name: Run qmkdev to create metadata device 
