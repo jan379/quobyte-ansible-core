@@ -1,7 +1,7 @@
 # Registry entries.
-registry: 10.138.15.199,10.138.15.201,10.138.15.202,10.138.15.192
+registry: 10.138.15.214,10.138.0.2,10.138.15.215
 # API endpoint to talk to
-api_service: 10.138.15.199
+api_service: 10.138.15.214
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network
@@ -9,7 +9,7 @@ network: 10.0.0.0/8
 # Where should volumes be automatically mounted?
 mountpoint: /quobyte
 # Select a dedicated device for the metadata service
-metadatadevice: /dev/sdb
+metadatadevice: sdb
 # Name of your Quobyte cluster
 clustername: smallscale
 # How many servers should run Quobyte core services?

@@ -6,7 +6,18 @@
   #quobyte_version: =2:3.0~pre8.1
   #quobyte_version: =2:3.0~pre9-1
     quobyte_version: =2:3.0~pre9.1-1
+    repo_id: 2dc3276fa0Cf532119d046eb9c35ed4c
+
   tasks:
+    
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
+      when: repo_id is defined 
+
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/v3 
+      when: repo_id is not defined 
+
     - name: Add Quobyte repository signing key
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
@@ -14,7 +25,8 @@
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
     - name: Add Quobyte apt repository to sources list
       apt_repository:
-        repo: deb https://packages.quobyte.com/repo/v3/apt buster main
+        #repo: deb https://packages.quobyte.com/repo/v3/apt buster main
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
         state: present
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
@@ -22,8 +34,7 @@
       yum_repository:
         name: quobyte
         description: Quobyte rpm repo
-        #baseurl: https://packages.quobyte.com/repo/v3/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
-        baseurl: https://packages.quobyte.com/repo/3/2dc3276fa0Cf532119d046eb9c35ed4c/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+        baseurl: "{{ package_url }}/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
         gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
@@ -50,7 +61,7 @@
         packages:
         - java-11-openjdk 
         ##- quobyte-thirdparty-libraries-3.0~pre8.1
-        - quobyte-thirdparty-libraries
+        ##- quobyte-thirdparty-libraries
         ##- quobyte-server-3.0~pre8.1
         - quobyte-server
         - xfsprogs
