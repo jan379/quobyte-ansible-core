@@ -7,11 +7,11 @@ Also you need to adopt vars/ansible-vars to your needs.
 
 After that you can use the numbered playbooks to install and configure a Quoybte cluster.
 
-00_install_defaultserver.yaml: Adds Quoybte package repositories, installs Quobyte server packages.
+00_install_defaultserver.yaml: Adds Quobyte package repositories, installs Quobyte server packages.
 
 01_install-coreservices.yaml: Installs registry, api and webconsole services. After this step you are able to login to your cluster.
 
-02_add_metadataservices.yaml: Installs and starts Quoybte Metadata Service. Formats and labels the metadata device that you defined as a variable.
+02_add_metadataservices.yaml: Installs and starts Quobyte Metadata Service. Formats and labels the metadata device that you defined as a variable.
 
 03_add_dataservices.yaml: Installs and start data service. Formats and uses all devices within a machine that are not already formatted. After this step you get a fully functional Quoybte cluster.
 
