@@ -13,7 +13,7 @@ After that you can use the numbered playbooks to install and configure a Quoybte
 
 02_add_metadataservices.yaml: Installs and starts Quobyte Metadata Service. Formats and labels the metadata device that you defined as a variable.
 
-03_add_dataservices.yaml: Installs and start data service. Formats and uses all devices within a machine that are not already formatted. After this step you get a fully functional Quoybte cluster.
+03_add_dataservices.yaml: Installs and start data service. Formats and uses all devices within a machine that are not already formatted. After this step you get a fully functional Quobyte cluster.
 
 04_tune-cluster.yaml: Sets "sysctl" parameters with  the help of a Qoubyte profile for the "tuned" daemon. You can use it as a conveniency if you do not want to touch your system by yourself.
 
