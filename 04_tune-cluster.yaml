@@ -1,4 +1,4 @@
-- hosts: quobyte-server 
+- hosts: quobyte-servers
   vars_files:
     - vars/ansible-vars
   become: yes
@@ -7,18 +7,16 @@
       apt: 
         name: tuned
         state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Install tuned RPM package 
       yum: 
         name: tuned
         state: present
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
-
+      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Set Quobyte tuned server profile
-      shell:
-        cmd: tuned-adm profile quobyte-server-performance
+      command: tuned-adm profile quobyte-server-performance
 
     - name: Restart tuned
       service:
@@ -50,14 +48,6 @@
       service:
         state: restarted
         name: quobyte-webconsole 
-- hosts: webconsole-services 
-  become: yes
-  serial: 1
-  tasks:
-    - name: Restart Quobyte registry services 
-      service:
-        state: restarted
-        name: quobyte-registry 
 - hosts: metadata-services 
   become: yes
   serial: 1

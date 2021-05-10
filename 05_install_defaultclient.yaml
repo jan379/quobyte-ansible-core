@@ -17,6 +17,14 @@
         package_url: https://packages.quobyte.com/repo/v3 
       when: repo_id is not defined 
 
+    - set_fact: 
+        rpm_distribution_string: RHEL 
+      when: ansible_distribution is regex('^RedHat*') 
+
+    - set_fact: 
+        rpm_distribution_string: "{{ ansible_distribution }}"
+      when: ansible_distribution is regex('^CentOS*') 
+
     - name: Add Quobyte repository signing key
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
@@ -27,15 +35,15 @@
         #repo: deb https://packages.quobyte.com/repo/v3/apt buster main
         repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
         state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Add Quobyte rpm repository to sources list
       yum_repository:
         name: quobyte
         description: Quobyte rpm repo
-        baseurl: "{{ package_url }}/rpm/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
         gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Install Debian packages
       apt:
@@ -46,7 +54,7 @@
         packages:
         - default-jre-headless
         - quobyte-client{{ quobyte_version }}
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      when: ansible_facts['os_family'] == "Debian"
  
     - name: Install RPM packages
       yum: 
@@ -58,11 +66,11 @@
         packages:
         - java-11-openjdk 
         - quobyte-client
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+      when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Write /etc/quobyte/host.cfg
-      template:
-        src: templates/host.cfg.jinja2
-        dest: "/etc/quobyte/host.cfg"
+#    - name: Write /etc/quobyte/host.cfg
+#      template:
+#        src: templates/host.cfg.jinja2
+#        dest: "/etc/quobyte/host.cfg"
 
 
