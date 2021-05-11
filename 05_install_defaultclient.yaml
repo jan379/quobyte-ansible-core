@@ -53,7 +53,8 @@
       vars:
         packages:
         - default-jre-headless
-        - quobyte-client{{ quobyte_version }}
+        ##- quobyte-client{{ quobyte_version }}
+        - quobyte-client
       when: ansible_facts['os_family'] == "Debian"
  
     - name: Install RPM packages
@@ -68,9 +69,22 @@
         - quobyte-client
       when: ansible_facts['os_family'] == "RedHat"
 
-#    - name: Write /etc/quobyte/host.cfg
-#      template:
-#        src: templates/host.cfg.jinja2
-#        dest: "/etc/quobyte/host.cfg"
+    - name: Write /etc/quobyte/client-service.cfg
+      template:
+        src: templates/client-service.cfg.jinja2
+        dest: "/etc/quobyte/client-service.cfg"
 
+    - name: Create client mount point /quobyte 
+      file:
+        path: /quobyte
+        state: directory
+        mode: '0755'
+
+    - name: Enable Quobyte client service
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-client
 
