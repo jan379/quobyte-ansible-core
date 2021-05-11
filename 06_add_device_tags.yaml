@@ -6,7 +6,7 @@
   tasks:
     - name: get quobyte session 
       shell:
-        cmd: qmgmt -u {{ api_service }} user login storageadmin test.1234 
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
     - name: Create a list of SSD devices
       shell:
