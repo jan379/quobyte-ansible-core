@@ -1,7 +1,7 @@
 # Registry entries.
-registry: 10.138.0.18,10.138.0.19,10.138.0.20
+registry: 10.138.0.48,10.138.0.50,10.138.0.49
 # API endpoint to talk to
-api_service: 10.138.0.18
+api_service: 10.138.0.48
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network
@@ -11,11 +11,11 @@ mountpoint: /quobyte
 # Select a dedicated device for the metadata service
 metadatadevice: sdb
 # Name of your Quobyte cluster
-clustername: smallscale
+clustername: apivideo
 # Quobyte admin user
 admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.
-admin_password: test.1234 
+admin_password: changeMe
 # Path to license file
 license_file: /home/deploy/license.txt
 # How many servers should run Quobyte core services?

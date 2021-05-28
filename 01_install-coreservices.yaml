@@ -1,5 +1,7 @@
 # first node will be bootstrap node
 - hosts: registry-services[0]
+  vars_files:
+    - vars/ansible-vars
   become: yes
   tasks:
 
@@ -12,6 +14,56 @@
       command:
         cmd: /usr/bin/qbootstrap -y -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
+
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-api
+
+    - name: Copy system configuration
+      copy:
+         src: templates/system.config
+         dest: /tmp/
+      tags: system
+
+    - replace:
+        path: /tmp/system.config
+        regexp: '__NW__'
+        replace: '{{ network }}'
+      tags: system
+
+    - replace:
+        path: /tmp/system.config
+        regexp: '__S3__'
+        replace: '{{ s3_endpoint }}'
+      tags: system
+
+    - replace:
+        path: /tmp/system.config
+        regexp: '__CLUSTERNAME__'
+        replace: '{{ clustername }}'
+      tags: system
+
+    - name: Import system configuration
+      shell:
+        cmd: /usr/bin/qmgmt systemconfig import /tmp/system.config
+      tags: system
+
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
 
 - hosts: registry-services[1:]
   become: yes
