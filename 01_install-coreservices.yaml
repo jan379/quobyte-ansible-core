@@ -55,6 +55,16 @@
         replace: '{{ clustername }}'
       tags: system
 
+    - name: Wait for API RPC port to become available 
+      wait_for:
+        port: 7865 
+        delay: 2
+
+    - name: Wait for API metrics port to become available 
+      wait_for:
+        port: 7875 
+        delay: 2
+
     - name: Import system configuration
       shell:
         cmd: /usr/bin/qmgmt systemconfig import /tmp/system.config
