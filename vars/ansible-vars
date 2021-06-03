@@ -1,9 +1,9 @@
 # Registry entries.
-registry: 10.138.0.48,10.138.0.50,10.138.0.49
+registry: 10.138.0.59,10.138.0.60,10.138.0.58
 # API endpoint to talk to
-api_service: 10.138.0.48
+api_service: 10.138.0.59
 # A valid DNS entry for the S3 endpoint
-s3_endpoint: s3.quobyte.local
+s3_endpoint: 83.74.127.34.bc.googleusercontent.com 
 # Define your storage network
 network: 10.0.0.0/8
 # Where should volumes be automatically mounted?
@@ -11,7 +11,7 @@ mountpoint: /quobyte
 # Select a dedicated device for the metadata service
 metadatadevice: sdb
 # Name of your Quobyte cluster
-clustername: apivideo
+clustername: betacluster
 # Quobyte admin user
 admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.

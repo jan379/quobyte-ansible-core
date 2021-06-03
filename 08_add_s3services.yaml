@@ -1,0 +1,19 @@
+- hosts: s3-services 
+  become: yes
+  tasks:
+
+    - name: Create object storage woring directory
+      file:
+        path: /var/lib/quobyte/.quobyte
+        state: directory
+        owner: quobyte
+
+    - name: Enable Quobyte S3 proxy
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-s3
+
+
