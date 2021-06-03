@@ -1,4 +1,4 @@
-- hosts: data-services
+- hosts: registry-services[0]
   become: yes
   vars_files:
     - vars/ansible-vars
