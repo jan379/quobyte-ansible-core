@@ -1,6 +1,4 @@
 - hosts: quobyte-servers
-  vars_files:
-    - vars/ansible-vars
   become: yes
   tasks:
     - name: stop Quobyte data consuming services  
@@ -54,6 +52,7 @@
       apt:
         name: "{{ packages }}"
         state: absent 
+        purge: yes
       vars:
         packages:
         - quobyte-thirdparty-libraries
