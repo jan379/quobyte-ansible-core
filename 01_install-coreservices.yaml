@@ -22,16 +22,9 @@
         name: "{{ item }}"
       with_items: 
          - quobyte-registry
-
-    - name: Enable Quobyte core services 
-      service:
-        enabled: yes
-        state: started
-        name: "{{ item }}"
-      with_items: 
          - quobyte-api
 
-    - name: Copy system configuration
+    - name: Enable system configuration
       copy:
          src: templates/system.config
          dest: /tmp/
@@ -127,3 +120,4 @@
         name: "{{ item }}"
       with_items: 
          - quobyte-webconsole
+
