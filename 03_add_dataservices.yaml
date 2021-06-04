@@ -9,6 +9,17 @@
       with_items: 
          - quobyte-data
 
+    - name: Wait for Dataservice RPC port to become available 
+      wait_for:
+        port: 7863 
+        delay: 2
+
+    - name: Wait for Dataservice metrics port to become available 
+      wait_for:
+        port: 7873
+        delay: 2
+
+
 - hosts: data-services
   vars_files:
     - vars/ansible-vars
