@@ -1,7 +1,46 @@
-- hosts: s3-services 
+- hosts: registry-services[0] 
+  vars_files:
+    - vars/ansible-vars
   become: yes
   tasks:
+    - name: get quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
+    - name: export systemconfig 
+      shell:
+        cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
+
+    - name: add qns section to systemconfig
+      blockinfile:
+        path: /etc/ssh/sshd_config
+        block: |
+          qns_config {
+            id: "{{ qns_id }}"
+            secret: "{{ qns_secret }}"
+          }
+
+    - name: import systemconfig 
+      shell:
+        cmd: qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
+
+- hosts: registry-services 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: restart Quobyte registries 
+      service:
+        state: restarted
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+
+- hosts: s3-services 
+  become: yes
+  vars_files:
+    - vars/ansible-vars
+  tasks:
     - name: get public ip 
       uri:
         url: http://ip.syseleven.de
@@ -17,7 +56,7 @@
       lineinfile:
         path: /etc/quobyte/s3.cfg
         state: present
-        line: "qns.id: r76l1jizyqy"
+        line: "qns.id: {{ qns_id }}"
 
     - name: Add public_ip config 
       lineinfile:
