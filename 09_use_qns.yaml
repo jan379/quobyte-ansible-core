@@ -13,7 +13,7 @@
 
     - name: add qns section to systemconfig
       blockinfile:
-        path: /etc/ssh/sshd_config
+        path: /tmp/systemconfig
         block: |
           qns_config {
             id: "{{ qns_id }}"
