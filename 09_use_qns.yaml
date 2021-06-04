@@ -1,0 +1,33 @@
+- hosts: s3-services 
+  become: yes
+  tasks:
+
+    - name: get public ip 
+      uri:
+        url: http://ip.syseleven.de
+        return_content: yes
+      register: ipaddress
+    - set_fact: 
+        public_ip: "public_ip: {{ ipaddress.content | trim }}"
+
+    - debug:
+       var: public_ip 
+
+    - name: Add qns config 
+      lineinfile:
+        path: /etc/quobyte/s3.cfg
+        state: present
+        line: "qns.id: r76l1jizyqy"
+
+    - name: Add public_ip config 
+      lineinfile:
+        path: /etc/quobyte/s3.cfg
+        state: present
+        line: "{{ public_ip }}"
+
+    - name: restart Quobyte S3 proxy
+      service:
+        state: restarted
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-s3

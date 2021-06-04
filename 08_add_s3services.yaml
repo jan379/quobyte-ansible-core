@@ -2,7 +2,7 @@
   become: yes
   tasks:
 
-    - name: Create object storage woring directory
+    - name: Create object storage working directory
       file:
         path: /var/lib/quobyte/.quobyte
         state: directory
