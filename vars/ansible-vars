@@ -1,7 +1,7 @@
 # Registry entries.
-registry: 10.138.0.63,10.138.15.193,10.138.15.194
+registry: 10.164.15.233,10.164.15.234,10.164.15.235
 # API endpoint to talk to
-api_service: 10.138.0.63
+api_service: 10.164.15.233
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network
@@ -22,7 +22,3 @@ license_file: /home/deploy/license.txt
 clustersize: 3
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd
-
-# optional use of quobyte name service
-##qns_id:   "presalesxyz"
-##qns_secret: "8uhp2gvnj2sqrc1c6umi1honjq"
