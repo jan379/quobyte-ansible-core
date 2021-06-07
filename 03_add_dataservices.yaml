@@ -65,6 +65,7 @@
         - "{{ device_name_short }}"
 
     - name: Create Quobyte Data devices
+      ignore_errors: yes
       command: 
         cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
         creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
