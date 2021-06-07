@@ -11,13 +11,11 @@
 
     - name: Wait for Dataservice RPC port to become available 
       wait_for:
-        port: 7863 
-        delay: 2
+        port: 7863
 
     - name: Wait for Dataservice metrics port to become available 
       wait_for:
         port: 7873
-        delay: 2
 
 
 - hosts: data-services
@@ -33,29 +31,40 @@
       shell:
         cmd: qmgmt -u {{ api_service }} device list-unformatted | grep {{ ansible_nodename }} | awk '{print $3}' 
       register: empty_devices 
-
     - debug: 
        var: empty_devices
 
     - set_fact: 
        unformatted_devices: "{{ empty_devices.stdout_lines }}"
-
     - debug: 
-       var: unformatted_devices
+        var: unformatted_devices
+
     - set_fact:
-       device_name_short: "{{ unformatted_devices | replace( '/dev/','' ) }}"
+        mount_names: "{{ ansible_mounts | map(attribute='device') | list}}"
+
+    - set_fact:
+            already_mounted: "{{ unformatted_devices | intersect(mount_names) }}"
+    - debug: 
+        var: already_mounted 
+
+    - set_fact:
+            devices_requiring_action: "{{ unformatted_devices | difference(already_mounted) }}"
+    - debug: 
+        var: devices_requiring_action 
+    - set_fact:
+       device_name_short: "{{ devices_requiring_action | replace( '/dev/','' ) }}"
 
     - name: Create a xfs filesystem on data devices
       filesystem:
         fstype: xfs 
         dev: "{{ item }}"
       with_items: 
-        - "{{ unformatted_devices }}"
+        - "{{ devices_requiring_action }}"
     - name: Label data device with "quobyte-dev" 
       command:
         cmd: xfs_admin -L quobyte-dev {{ item }}
       with_items: 
-        - "{{ unformatted_devices }}"
+        - "{{ devices_requiring_action }}"
 
     - name: Wait for automounted data devices
       wait_for:
@@ -65,20 +74,20 @@
         - "{{ device_name_short }}"
 
     - name: Create Quobyte Data devices
-      ignore_errors: yes
       command: 
         cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
         creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items:
         - "{{ device_name_short }}"
 
-- hosts: data-services
-  become: yes
-  tasks:
-    - name: Restart Quobyte data services 
-      service:
-        state: restarted
-        name: "{{ item }}"
-      with_items: 
-         - quobyte-data
-
+#- hosts: data-services
+#  become: yes
+#  tasks:
+#    - name: Restart Quobyte data services 
+#      service:
+#        state: restarted
+#        name: "{{ item }}"
+#      with_items: 
+#         - quobyte-data
+#      when: devices_requiring_action | length > 0
+#
