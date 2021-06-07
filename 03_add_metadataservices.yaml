@@ -12,6 +12,8 @@
 - hosts: metadata-services
   vars_files:
     - vars/ansible-vars
+  vars:
+    metadata_host_count: "{{ groups['metadata-services'] | length }}"
   become: yes
   tasks:
     - name: Create a xfs filesystem on {{ metadatadevice }}
@@ -38,4 +40,24 @@
       command:
         cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata 
         creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+
+- hosts: registry-services[0]
+  vars_files:
+    - vars/ansible-vars
+  vars:
+    metadata_host_count: "{{ groups['metadata-services'] | length }}"
+  become: yes
+  tasks:
+
+    - name: get quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: Wait for all {{ metadata_host_count }} metadata devices to become available
+      shell: 
+        cmd: qmgmt -u {{ api_service }} device list METADATA | grep ONLINE | wc -l
+      register: metadata_device_state
+      retries: 12
+      delay: 10
+      until: metadata_device_state.stdout == metadata_host_count 
 
