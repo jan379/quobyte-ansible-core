@@ -65,7 +65,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - java-11-openjdk 
+        ##- java-11-openjdk 
         - quobyte-client
       when: ansible_facts['os_family'] == "RedHat"
 
@@ -78,7 +78,9 @@
       file:
         path: /quobyte
         state: directory
-        mode: '0755'
+        owner: quobyte
+        group: nogroup
+        mode: '0555'
 
     - name: Enable Quobyte client service
       service:
