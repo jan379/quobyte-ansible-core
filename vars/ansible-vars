@@ -1,7 +1,7 @@
 # Registry entries.
-registry: 10.164.15.233,10.164.15.234,10.164.15.235
+registry: 10.164.15.227,10.164.0.58,10.164.15.228
 # API endpoint to talk to
-api_service: 10.164.15.233
+api_service: 10.164.15.227
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network

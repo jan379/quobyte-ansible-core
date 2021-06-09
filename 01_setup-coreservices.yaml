@@ -65,7 +65,7 @@
 
     - name: Import system configuration
       shell:
-        cmd: /usr/bin/qmgmt systemconfig import /tmp/system.config
+        cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/system.config
       tags: system
 
     - name: Restart Quobyte registry services 

@@ -49,7 +49,7 @@
   become: yes
   tasks:
 
-    - name: get quobyte session 
+    - name: get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
