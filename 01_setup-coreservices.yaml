@@ -58,6 +58,11 @@
         port: 7875 
         delay: 2
 
+
+    - name: Get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
     - name: Import system configuration
       shell:
         cmd: /usr/bin/qmgmt systemconfig import /tmp/system.config
