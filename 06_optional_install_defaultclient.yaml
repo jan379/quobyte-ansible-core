@@ -2,10 +2,6 @@
   vars_files:
     - vars/ansible-vars
   become: yes
-  vars: 
-    #quobyte_version: =2:3.0~pre8.1
-    #quobyte_version: =2:3.0~pre9-1
-    #quobyte_version: =2:3.0~pre9.1-1
 
   tasks:
     
@@ -30,9 +26,9 @@
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
         state: present
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
     - name: Add Quobyte apt repository to sources list
       apt_repository:
-        #repo: deb https://packages.quobyte.com/repo/v3/apt buster main
         repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
         state: present
       when: ansible_facts['os_family'] == "Debian"
@@ -52,8 +48,6 @@
         update_cache: yes
       vars:
         packages:
-        - default-jre-headless
-        ##- quobyte-client{{ quobyte_version }}
         - quobyte-client
       when: ansible_facts['os_family'] == "Debian"
  
@@ -65,7 +59,6 @@
         name: "{{ packages }}"
       vars:
         packages:
-        ##- java-11-openjdk 
         - quobyte-client
       when: ansible_facts['os_family'] == "RedHat"
 
@@ -79,7 +72,7 @@
         path: /quobyte
         state: directory
         owner: quobyte
-        group: nogroup
+        group: quobyte 
         mode: '0555'
 
     - name: Enable Quobyte client service
