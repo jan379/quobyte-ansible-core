@@ -1,7 +1,7 @@
 - hosts: quobyte-servers 
   serial: 1
   vars_files:
-    - vars/ansible-vars
+    - ../vars/ansible-vars
   become: yes
   tasks:
     - name: get Quobyte session 
@@ -41,6 +41,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - quobyte-server
+        ## - quobyte-server
+        - quobyte-server-3.0~pre9.2-1.1 
       when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
 
