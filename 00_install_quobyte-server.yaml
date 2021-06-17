@@ -44,7 +44,7 @@
         name: quobyte
         description: Quobyte rpm repo
         baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
-        gpgkey: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg
+        gpgkey: https://packages.quobyte.com/repo/v3/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: Install Debian packages
