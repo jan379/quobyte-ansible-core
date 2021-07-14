@@ -1,7 +1,7 @@
 # Registry entries.
-registry: 10.164.15.227,10.164.0.58,10.164.15.228
+registry: 10.164.15.194,10.164.15.195,10.164.15.201,10.164.15.197,10.164.0.6,10.164.15.198
 # API endpoint to talk to
-api_service: 10.164.15.227
+api_service: 10.164.15.194
 # A valid DNS entry for the S3 endpoint
 s3_endpoint: s3.quobyte.local
 # Define your storage network
@@ -11,7 +11,7 @@ mountpoint: /quobyte
 # Select a dedicated device for the metadata service
 metadatadevice: sdb
 # Name of your Quobyte cluster
-clustername: betacluster
+clustername: performance-qb
 # Quobyte admin user
 admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.
