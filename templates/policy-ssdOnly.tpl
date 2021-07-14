@@ -1,5 +1,5 @@
 policy_rule {
-  name: "hdd"
+  name: "ssd"
   description: "Only uses spinning drives."
   enabled: true
   scope {
@@ -7,7 +7,7 @@ policy_rule {
   }
   policies {
     file_tag_based_placement {
-      required_tag: "hdd"
+      required_tag: "ssd"
       soften_tag_requirements: false
     }
   }
