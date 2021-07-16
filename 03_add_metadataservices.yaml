@@ -1,7 +1,7 @@
 - hosts: metadata-services 
   become: yes
   tasks:
-    - name: Enable Quobyte data service
+    - name: Enable Quobyte metadata service
       service:
         enabled: yes
         state: started
