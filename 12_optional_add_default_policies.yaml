@@ -10,7 +10,7 @@
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: Test if tenant {{ my_policy }} exists 
+    - name: Test if policy {{ my_policy }} exists 
       shell:
         cmd: qmgmt -u {{ api_service }} policy-rule list | grep "{{ my_policy_name }} " | awk '{print $2}'
       register: my_policy_test
