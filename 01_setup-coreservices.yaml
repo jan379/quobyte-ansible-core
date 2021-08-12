@@ -47,16 +47,24 @@
         cmd: cat /tmp/systemconfig
       register: systemconfig
 
-    - name: add clustername to systemconfig
+    - name: Add cluster_configuraton block to systemconfig
       blockinfile:
         path: /tmp/systemconfig
         block: |
           cluster_configuration {
             cluster_name: "{{ clustername }}"
           }
-      when: repo_id is not defined 
+      when: 'repo_id is not defined and "cluster_configuration {" not in systemconfig.stdout'
 
-    - name: Add service networks to systemconfig
+    - name: Set cluster name 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  cluster_name:.*'
+        line: '  cluster_name: "{{ clustername }}"'
+        insertafter: 'cluster_configuration {'
+      when: '"cluster_configuration {" in systemconfig.stdout'
+
+    - name: Add service network block to systemconfig
       blockinfile:
         path: /tmp/systemconfig
         block: |
@@ -64,7 +72,23 @@
             enabled_service_networks: "{{ network }}"
             enabled_client_networks: "{{ network }}"
           }
-      when: '"enabled_service_networks" not in systemconfig.stdout' 
+      when: '"network {" not in systemconfig.stdout' 
+
+    - name: Set service network 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  enabled_service_networks:.*'
+        line: '  enabled_service_networks: "{{ network }}"'
+        insertafter: 'network {'
+      when: '"network {" in systemconfig.stdout'
+
+    - name: Set client network 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  enabled_client_networks:.*'
+        line: '  enabled_client_networks: "{{ network }}"'
+        insertafter: 'network {'
+      when: '"network {" in systemconfig.stdout'
 
     - name: Import system configuration
       shell:
