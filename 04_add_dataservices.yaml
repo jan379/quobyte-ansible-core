@@ -1,4 +1,6 @@
 - hosts: data-services
+  vars_files:
+    - vars/ansible-vars
   become: yes
   tasks:
     - name: Enable Quobyte data service
@@ -17,12 +19,10 @@
       wait_for:
         port: 7873
 
+    - name: Wait 15 seconds for Quobyte to detect devices 
+      pause:
+        seconds: 15
 
-- hosts: data-services
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
     - name: get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
@@ -80,14 +80,3 @@
       with_items:
         - "{{ device_name_short }}"
 
-#- hosts: data-services
-#  become: yes
-#  tasks:
-#    - name: Restart Quobyte data services 
-#      service:
-#        state: restarted
-#        name: "{{ item }}"
-#      with_items: 
-#         - quobyte-data
-#      when: devices_requiring_action | length > 0
-#
