@@ -42,6 +42,11 @@
       shell:
         cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
 
+    - name: Register systemconfig
+      shell: 
+        cmd: cat /tmp/systemconfig
+      register: systemconfig
+
     - name: add clustername to systemconfig
       blockinfile:
         path: /tmp/systemconfig
@@ -51,19 +56,7 @@
           }
       when: repo_id is not defined 
 
-    - name: add s3 config to systemconfig
-      lineinfile:
-        path: /tmp/systemconfig
-        line: '  hostname: "{{ s3_endpoint }}"'
-        insertafter: 's3_proxy {'
-
-    - name: add s3 browser bucket name to systemconfig
-      lineinfile:
-        path: /tmp/systemconfig
-        line: '  browser_bucket_name: "browser.{{ s3_endpoint }}"'
-        insertafter: 's3_proxy {'
-
-    - name: add service networks to systemconfig
+    - name: Add service networks to systemconfig
       blockinfile:
         path: /tmp/systemconfig
         block: |
@@ -71,6 +64,7 @@
             enabled_service_networks: "{{ network }}"
             enabled_client_networks: "{{ network }}"
           }
+      when: '"enabled_service_networks" not in systemconfig.stdout' 
 
     - name: Import system configuration
       shell:
