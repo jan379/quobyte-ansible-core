@@ -19,9 +19,9 @@
       wait_for:
         port: 7873
 
-    - name: Wait 15 seconds for Quobyte to detect devices 
+    - name: Wait 60 seconds for Quobyte to detect devices 
       pause:
-        seconds: 15
+        seconds: 60 
 
     - name: get Quobyte session 
       shell:
