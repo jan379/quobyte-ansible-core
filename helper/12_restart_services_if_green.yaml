@@ -1,7 +1,7 @@
 - hosts: data-services 
   serial: 1
   vars_files:
-    - vars/ansible-vars
+    - ../vars/ansible-vars
   become: yes
   tasks:
     - name: get Quobyte session 
