@@ -47,7 +47,7 @@
         return_content: yes
       register: ipaddress
     - set_fact: 
-        public_ip: "public_ip: {{ ipaddress.content | trim }}"
+        public_ip: "public_ip = {{ ipaddress.content | trim }}"
 
     - debug:
        var: public_ip 
@@ -56,7 +56,7 @@
       lineinfile:
         path: /etc/quobyte/s3.cfg
         state: present
-        line: "qns.id: {{ qns_id }}"
+        line: "qns.id = {{ qns_id }}"
 
     - name: Add public_ip config 
       lineinfile:
