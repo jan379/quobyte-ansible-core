@@ -72,8 +72,6 @@
         path: /quobyte
         state: directory
         owner: quobyte
-        group: quobyte 
-        mode: '0555'
 
     - name: Enable Quobyte client service
       service:
