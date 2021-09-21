@@ -17,7 +17,7 @@
 
     - name: create tenant 
       shell:
-        cmd: qmgmt -u {{ api_service }} tenant create {{ my_tenant }} 
+        cmd: qmgmt -u {{ api_service }} tenant create "{{ my_tenant }}"
       when: my_tenant not in my_tenant_test.stdout
 
     - name: Test if volume {{ my_volume }} exists 
@@ -27,5 +27,5 @@
 
     - name: create volume
       shell:
-        cmd: qmgmt -u {{ api_service }} volume create {{ my_tenant }}/{{ my_volume }} user=root group=root configuration_name=noVolumeConfig
+        cmd: qmgmt -u {{ api_service }} volume create "{{ my_tenant }}/{{ my_volume }}" user=root group=root configuration_name=noVolumeConfig
       when: my_volume not in my_volume_test.stdout
